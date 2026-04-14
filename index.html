@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>欢迎来到亮亮老师的难词训练</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#FF7D00',
+                        neutral: '#F5F7FA',
+                        dark: '#1D2129',
+                        light: '#FFFFFF',
+                        correct: '#00B42A',
+                        incorrect: '#F53F3F'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 4px 20px rgba(0, 0, 0, 0.08)',
+                        'card-hover': '0 8px 30px rgba(0, 0, 0, 0.12)',
+                    }
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .transition-custom {
+                transition: all 0.3s ease;
+            }
+            .bg-gradient-primary {
+                background: linear-gradient(135deg, #165DFF 0%, #4080FF 100%);
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .option-hover {
+                @apply hover:bg-primary/10 hover:border-primary transition-custom cursor-pointer;
+            }
+            .progress-value {
+                transition: width 0.5s ease-in-out;
+            }
+            .warning-blink {
+                animation: blink 1.5s infinite;
+            }
+            @keyframes blink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.7; }
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-neutral min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-md sticky top-0 z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-book text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-dark">亮亮老师的难词训练</h1>
+            </div>
+            <div class="flex items-center space-x-6">
+                <div class="hidden md:flex items-center space-x-2">
+                    <i class="fa fa-clock-o text-secondary"></i>
+                    <span id="timer" class="font-medium">100:00</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <i class="fa fa-check-circle text-primary"></i>
+                    <span id="progress-text" class="font-medium">0/60</span>
+                </div>
+                <button id="submit-btn" class="hidden md:flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
+                    <i class="fa fa-check mr-2"></i>
+                    <span>提交答案</span>
+                </button>
+            </div>
+            <button id="mobile-submit-btn" class="md:hidden flex items-center px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
+                <i class="fa fa-check mr-1"></i>
+                <span>提交</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <!-- 欢迎页面 -->
+        <section id="welcome-screen" class="flex flex-col items-center justify-center h-[70vh] text-center">
+            <div class="bg-white rounded-2xl shadow-card p-8 max-w-3xl w-full mx-auto transform transition-all duration-500 hover:shadow-card-hover">
+                <div class="text-primary mb-6">
+                    <i class="fa fa-graduation-cap text-5xl mb-4"></i>
+                </div>
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-4 text-shadow">欢迎参加难词训练</h2>
+                <p class="text-gray-600 text-lg mb-8">本次训练共有60道题，限时100分钟。完成后将获得详细解析和评分。</p>
+                
+                <!-- 添加红色警告信息 -->
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fa fa-exclamation-circle text-red-500 text-xl"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-red-700 font-medium warning-blink">
+                                注意：进入下一题后将无法返回上一题，请谨慎作答！
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6 mb-8">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                            <i class="fa fa-clock-o text-xl"></i>
+                        </div>
+                        <div class="ml-3 text-left">
+                            <p class="text-gray-500 text-sm">限时</p>
+                            <p class="font-bold text-dark">100分钟</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                            <i class="fa fa-question-circle text-xl"></i>
+                        </div>
+                        <div class="ml-3 text-left">
+                            <p class="text-gray-500 text-sm">题目数量</p>
+                            <p class="font-bold text-dark">60题</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                            <i class="fa fa-book text-xl"></i>
+                        </div>
+                        <div class="ml-3 text-left">
+                            <p class="text-gray-500 text-sm">内容</p>
+                            <p class="font-bold text-dark">词汇理解</p>
+                        </div>
+                    </div>
+                </div>
+                <button id="start-btn" class="w-full md:w-auto px-8 py-3 bg-gradient-primary text-white rounded-lg font-medium hover:shadow-lg transform hover:-translate-y-1 transition-custom flex items-center justify-center">
+                    <i class="fa fa-play-circle mr-2"></i>
+                    开始训练
+                </button>
+            </div>
+        </section>
+
+        <!-- 题目页面 -->
+        <section id="questions-screen" class="hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- 左侧题目区 -->
+                <div class="lg:col-span-8">
+                    <div id="question-container" class="bg-white rounded-2xl shadow-card p-6 mb-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 id="question-number" class="text-lg font-semibold text-primary">问题 1/60</h3>
+                            <div class="flex items-center">
+                                <span id="question-timer" class="text-sm text-gray-500 mr-2">00:00</span>
+                                <i class="fa fa-clock-o text-secondary"></i>
+                            </div>
+                        </div>
+                        <div class="border-b border-gray-100 pb-4 mb-6">
+                            <p id="question-text" class="text-xl font-medium text-dark mb-4">问题文本将显示在这里...</p>
+                            <div id="options-container" class="space-y-3 mt-6">
+                                <!-- 选项将通过JavaScript动态生成 -->
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center mt-6">
+                            <button id="prev-btn" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 transition-custom disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i class="fa fa-chevron-left mr-1"></i>
+                                上一题
+                            </button>
+                            <button id="next-btn" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom disabled:opacity-50 disabled:cursor-not-allowed">
+                                下一题
+                                <i class="fa fa-chevron-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧进度区 -->
+                <div class="lg:col-span-4">
+                    <div class="bg-white rounded-2xl shadow-card p-6 sticky top-24">
+                        <h3 class="text-lg font-semibold text-dark mb-4 flex items-center">
+                            <i class="fa fa-list-ol text-primary mr-2"></i>
+                            题目进度
+                        </h3>
+                        <div class="mb-6">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-sm text-gray-600">已完成</span>
+                                <span id="completed-count" class="text-sm font-medium text-primary">0/60</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div id="progress-bar" class="progress-value bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <h4 class="text-base font-medium text-dark mb-3">题目导航</h4>
+                        <div class="mb-3 flex items-center text-sm text-gray-600">
+                            <i class="fa fa-info-circle mr-2 text-primary"></i>
+                            <span>进入下一题后无法返回上一题</span>
+                        </div>
+                        <div id="questions-grid" class="grid grid-cols-6 gap-2">
+                            <!-- 题目导航按钮将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 结果页面 -->
+        <section id="results-screen" class="hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-white rounded-2xl shadow-card p-8 text-center mb-8">
+                    <div class="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                        <i class="fa fa-trophy text-3xl text-primary"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-dark mb-2">训练完成！</h2>
+                    <p class="text-gray-600 mb-6">你已完成所有题目，以下是你的成绩</p>
+                    <div class="flex flex-col md:flex-row items-center justify-center space-y-6 md:space-y-0 md:space-x-12 mb-8">
+                        <div class="text-center">
+                            <p class="text-gray-500 text-sm mb-1">正确率</p>
+                            <p id="accuracy" class="text-3xl font-bold text-primary">0%</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-gray-500 text-sm mb-1">用时</p>
+                            <p id="time-spent" class="text-3xl font-bold text-dark">00:00</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-gray-500 text-sm mb-1">正确题数</p>
+                            <p id="correct-count" class="text-3xl font-bold text-correct">0</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-gray-500 text-sm mb-1">错误题数</p>
+                            <p id="incorrect-count" class="text-3xl font-bold text-incorrect">0</p>
+                        </div>
+                    </div>
+                    <button id="view-details-btn" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
+                        查看详细解析
+                    </button>
+                </div>
+
+                <div id="answers-container" class="space-y-6">
+                    <!-- 答案解析将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-6 mt-auto">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa fa-book text-primary"></i>
+                        <span class="font-medium">亮亮老师的难词训练</span>
+                    </div>
+                    <p class="text-gray-400 text-sm mt-1">提升你的词汇量，拓展你的语言能力</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition-custom">
+                        <i class="fa fa-facebook"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-custom">
+                        <i class="fa fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-custom">
+                        <i class="fa fa-instagram"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-custom">
+                        <i class="fa fa-linkedin"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-6 pt-6 text-center text-gray-400 text-sm">
+                &copy; 2025 亮亮老师的难词训练 | 保留所有权利
+            </div>
+        </div>
+    </footer>
+
+    <!-- 弹窗 -->
+    <div id="time-up-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+            <div class="text-center">
+                <div class="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center mx-auto mb-4">
+                    <i class="fa fa-clock-o text-2xl text-secondary"></i>
+                </div>
+                <h3 class="text-xl font-bold text-dark mb-2">时间到！</h3>
+                <p class="text-gray-600 mb-6">你的测试时间已结束，系统将自动提交你的答案。</p>
+                <button id="modal-confirm-btn" class="w-full px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom">
+                    查看结果
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 题目数据
+        const questions = [
+            {
+                id: 1,
+                question: "By leveraging patent laws, the company achieved exclusive control over an industry, eliminating all competitors. This market condition is known as ______.",
+                options: ["competition", "collaboration", "diversification", "monopoly"],
+                answer: "D",
+                explanation: "通过专利法获得行业独家控制、消除竞争对手的市场状态称为“垄断”（monopoly）。其他选项：A竞争，B合作，C多元化，均不符合题意。"
+            },
+            {
+                id: 2,
+                question: "Although he pretended to congratulate his colleague on the promotion, deep down he harbored strong ______ due to years of unfair treatment.",
+                options: ["gratitude", "resentment", "indifference", "retreat"],
+                answer: "B",
+                explanation: "表面祝贺但内心因不公待遇产生的情绪应为“怨恨”（resentment）。A感激、C冷漠、D退缩均与“不公平待遇”语境矛盾。"
+            },
+            {
+                id: 3,
+                question: "In the chess championship, her ______ pressed with masterful tactics, forcing her to readjust her strategy.",
+                options: ["nuance", "adversary", "advocate", "rally"],
+                answer: "B",
+                explanation: "国际象棋锦标赛中用高超战术迫使对手调整策略的人是“对手”（adversary）。A细微差别，C倡导者，D集会，均不符合场景。"
+            },
+            {
+                id: 4,
+                question: "To reduce heating costs, the homeowner installed thick material in the attic to enhance ______ and minimize heat loss.",
+                options: ["emulation", "ventilation", "insulation", "decoration"],
+                answer: "C",
+                explanation: "安装材料减少阁楼热量流失的目的是增强“隔热”（insulation）。A模仿，B通风，D装饰，均与保温无关。"
+            },
+            {
+                id: 5,
+                question: "When the concert's sound system suddenly failed, the venue descended into ______, with audience noise drowning out the performance.",
+                options: ["abuse", "harmony", "chores", "chaos"],
+                answer: "D",
+                explanation: "音响系统故障导致观众噪音盖过演出，现场陷入“混乱”（chaos）。A虐待，B和谐，C家务，均不符合情境。"
+            },
+            {
+                id: 6,
+                question: "Contrary to radical innovative theories, the professor prefers to uphold ______ academic views, believing foundational principles are the cornerstone of research.",
+                options: ["orthodox", "radical", "paradox", "unconventional"],
+                answer: "A",
+                explanation: "与激进创新理论相反，教授支持的应是“正统的”（orthodox）学术观点。B激进的，C悖论，D非传统的，均与“相反”逻辑相悖。"
+            },
+            {
+                id: 7,
+                question: "After stopping the maintenance medication, the patient experienced an unexpected ______, back to the pre-treatment condition.",
+                options: ["imprisonment", "reversion", "advance", "involvement"],
+                answer: "B",
+                explanation: "停药后回到治疗前状态称为“逆转”（reversion）。A监禁，C进步，D参与，均与“恢复原状”无关。"
+            },
+            {
+                id: 8,
+                question: "Her moving speech at the graduation ceremony earned unanimous ______ from the faculty and students, who applauded warmly.",
+                options: ["scorn", "ignorance", "compliment", "complement"],
+                answer: "C",
+                explanation: "动人的演讲赢得的是“称赞”（compliment）。A轻蔑，B无知，D补充，均与“热烈鼓掌”矛盾。"
+            },
+            {
+                id: 9,
+                question: "To prevent further damage to ancient buildings, the cultural heritage bureau implemented measures for their long-term ______ and restoration.",
+                options: ["preservation", "conversation", "relay", "decay"],
+                answer: "A",
+                explanation: "防止古建筑进一步损坏的措施是“保护”（preservation）。B对话，C接力，D腐烂，均不符合“文化遗产保护”语境。"
+            },
+            {
+                id: 10,
+                question: "Escalating disagreements over the border issue finally led to a direct ______, with both armies entering high alert.",
+                options: ["cooperation", "confrontation", "configuration", "ornament"],
+                answer: "B",
+                explanation: "边境分歧升级为军队进入高度戒备状态，即“对抗”（confrontation）。A合作，C配置，D装饰，均与“分歧升级”不符。"
+            },
+            {
+                id: 11,
+                question: "The ______ phrase \"quiet hubbub\" skillfully describes the contradictory scene of a lonely yet vibrant city at night.",
+                options: ["consistency", "ambiguity", "paradox", "clarity"],
+                answer: "C",
+                explanation: "“安静的喧闹”描述矛盾场景，属于“悖论”（paradox）。A一致性，B模糊性，D清晰性，均不体现矛盾关系。"
+            },
+            {
+                id: 12,
+                question: "The sudden tornado wreaked massive ______ on the town, destroying dozens of houses and cutting power supply.",
+                options: ["havoc", "protection", "safety", "bumper"],
+                answer: "A",
+                explanation: "龙卷风造成大规模“破坏”（havoc）。B保护，C安全，D丰收，均与“摧毁房屋”语境不符。"
+            },
+            {
+                id: 13,
+                question: "Facing numerous challenges in scientific research, he achieved breakthroughs through tenacious ______ and unremitting effort.",
+                options: ["forgoing", "impatience", "perseverance", "severance"],
+                answer: "C",
+                explanation: "通过顽强“坚持”（perseverance）和努力取得突破。A放弃，B不耐烦，D断绝，均与“克服挑战”逻辑相悖。"
+            },
+            {
+                id: 14,
+                question: "Doctors recommend using medication therapy in ______ with lifestyle adjustments for better chronic disease management.",
+                options: ["insulation", "conjunction", "separation", "consolation"],
+                answer: "B",
+                explanation: "药物治疗与生活调整“结合”（in conjunction with）以管理慢性病。A绝缘，C分离，D安慰，均不符合“协同作用”语境。"
+            },
+            {
+                id: 15,
+                question: "The dense vegetation and complex terrain in the Amazon ______ provide a unique habitat for numerous rare species.",
+                options: ["jungle", "desert", "juggle", "plain"],
+                answer: "A",
+                explanation: "亚马逊的密集植被和复杂地形对应“丛林”（jungle）。B沙漠，C杂耍，D平原，均与“植被茂密”不符。"
+            },
+            {
+                id: 16,
+                question: "His unsatisfactory exam result served as a ______ to study harder, prompting him to create a stricter study plan.",
+                options: ["deterrent", "obstacle", "spur", "spouse"],
+                answer: "C",
+                explanation: "不理想的考试成绩成为努力学习的“激励”（spur）。A威慑物，B障碍，D配偶，均与“促使制定计划”逻辑不符。"
+            },
+            {
+                id: 17,
+                question: "While this new drug works for some symptoms, it is not a/an ______ and cannot solve all health problems.",
+                options: ["penalty", "esteem", "panacea", "retreat"],
+                answer: "C",
+                explanation: "不能解决所有健康问题的药物不是“万灵药”（panacea）。A惩罚，B尊重，D撤退，均与“包治百病”无关。"
+            },
+            {
+                id: 18,
+                question: "With improved medical standards, the region's ______ rate dropped significantly, extending residents' average lifespan by over a decade.",
+                options: ["longevity", "mortality", "morality", "sooth"],
+                answer: "B",
+                explanation: "医疗水平提高使“死亡率”（mortality rate）下降。A长寿，C道德，D安慰，均与“平均寿命延长”不直接相关。"
+            },
+            {
+                id: 19,
+                question: "Through large-scale ______, the abandoned factory was transformed into a modern art-themed cultural and creative park.",
+                options: ["renovation", "deterioration", "stumble", "crumble"],
+                answer: "A",
+                explanation: "废弃工厂改造为创意园区需“翻新”（renovation）。B恶化，C绊倒，D崩塌，均与“改造”方向相反。"
+            },
+            {
+                id: 20,
+                question: "Long-term rainwater erosion caused severe ______ of the riverbank, prompting the government to reinforce the dam to prevent collapse.",
+                options: ["accumulation", "deposition", "erosion", "formulation"],
+                answer: "C",
+                explanation: "长期雨水侵蚀导致河岸“侵蚀”（erosion）。A积累，B沉积，D形成，均与“侵蚀”的因果关系不符。"
+            },
+            {
+                id: 21,
+                question: "His ______ is architecture; over the years, he has designed many iconic buildings combining beauty and functionality.",
+                options: ["pesticide", "occupation", "manipulation", "pastime"],
+                answer: "B",
+                explanation: "设计许多标志性建筑的“职业”（occupation）是建筑。A农药，C操纵，D消遣，均与“职业”无关。"
+            },
+            {
+                id: 22,
+                question: "Now I'm going to mention, I never learned this in medical school or _________.",
+                options: ["residency", "conviction", "residue", "timber"],
+                answer: "A",
+                explanation: "医学院未学过的内容应与“住院实习”（residency）并列。B信念，C残留，D木材，均与医学培训无关。"
+            },
+            {
+                id: 23,
+                question: "She has practiced Chinese ______ since childhood, excelling in running script, and her elegant writing has won multiple awards in competitions.",
+                options: ["painting", "sketching", "calligraphy", "sculpture"],
+                answer: "C",
+                explanation: "擅长行书的艺术形式是“书法”（calligraphy）。A绘画，B素描，D雕塑，均与“书写”无关。"
+            },
+            {
+                id: 24,
+                question: "Constant comparison with his excellent brother gradually caused him to develop a sense of ______, making him increasingly self-conscious.",
+                options: ["superiority", "inferiority", "resentment", "arrogance"],
+                answer: "B",
+                explanation: "与优秀兄弟比较产生的是“自卑感”（inferiority）。A优越感，C怨恨，D傲慢，均与“自我意识增强”语境不符。"
+            },
+            {
+                id: 25,
+                question: "By continuously challenging herself, she successfully boosted her self-______, becoming more optimistic and brave in facing life's challenges.",
+                options: ["esteem", "stem", "contempt", "tempt"],
+                answer: "A",
+                explanation: "挑战自我提升的是“自尊”（self-esteem）。B茎，C蔑视，D诱惑，均与“乐观勇敢”逻辑无关。"
+            },
+            {
+                id: 26,
+                question: "That expansion created the all-powerful general and the ______ of diverse peoples made it easier for them to be loyal to him, rather than to some abstract idea of the Republic.",
+                options: ["exclusion", "corporation", "incorporation", "exertion"],
+                answer: "C",
+                explanation: "将不同民族“纳入”（incorporation）统治使其效忠。A排斥，B公司，D exertion（努力），均与“融合民族”不符。"
+            },
+            {
+                id: 27,
+                question: "The children waited for Santa's gifts with eager ______, checking the countdown on the calendar daily.",
+                options: ["gloom", "anticipation", "scepticism", "articulation"],
+                answer: "B",
+                explanation: "每天查看日历 countdown 体现对礼物的“期待”（anticipation）。A忧郁，C怀疑，D表达，均与“急切等待”矛盾。"
+            },
+            {
+                id: 28,
+                question: "When handling complex issues, we need to maintain ______, avoiding emotional impulses to make sound decisions.",
+                options: ["rationality", "fluctuation", "validation", "volatility"],
+                answer: "A",
+                explanation: "处理复杂问题需保持“理性”（rationality）以避免情绪化。B波动，C验证，D波动性，均与“冷静决策”无关。"
+            },
+            {
+                id: 29,
+                question: "He enjoys walking alone by the quiet lake and thinking about the world, engaging in deep ______ about life's meaning and future direction.",
+                options: ["distraction", "contempt", "contemplation", "superficiality"],
+                answer: "C",
+                explanation: "独自散步时对生命意义的思考是“沉思”（contemplation）。A分心，B蔑视，D肤浅，均与“深入思考”相悖。"
+            },
+            {
+                id: 30,
+                question: "Due to long-term neglect, the old building's structure suffered severe ______, posing a risk of collapse at any moment.",
+                options: ["improvement", "deterioration", "enhancement", "restoration"],
+                answer: "B",
+                explanation: "长期忽视导致建筑结构“恶化”（deterioration）。A改善，C增强，D修复，均与“濒临倒塌”矛盾。"
+            },
+            {
+                id: 31,
+                question: "Despite facing constant criticism, she remained an ______ advocate for environmental protection, enthusiastically organizing protests and educational campaigns.",
+                options: ["ardent", "arable", "natural", "neutral"],
+                answer: "A",
+                explanation: "面对批评仍热情组织活动的环保倡导者是“热心的”（ardent）。B可耕的，C自然的，D中立的，均与“积极倡导”不符。"
+            },
+            {
+                id: 32,
+                question: "After working 16 consecutive hours without a break, he felt completely ______, unable to even muster the energy to eat dinner.",
+                options: ["intact", "drained", "refreshed", "intangible"],
+                answer: "B",
+                explanation: "连续工作16小时后应感到“筋疲力尽”（drained）。A完整的，C精神焕发的，D无形的，均与“疲惫”语境不符。"
+            },
+            {
+                id: 33,
+                question: "His explanation for missing the exam—a sudden alien abduction—sounded so ______ that no one in the class believed a word of it.",
+                options: ["implausible", "plausible", "applause", "reasonable"],
+                answer: "A",
+                explanation: "被外星人绑架的借口“不可信”（implausible）。B可信的，C掌声，D合理的，均与“无人相信”矛盾。"
+            },
+            {
+                id: 34,
+                question: "Clean water is ______ to human survival; without it, societies cannot function, and basic health becomes impossible to maintain.",
+                options: ["optical", "replaceable", "indispensable", "optional"],
+                answer: "C",
+                explanation: "清洁水对人类生存“不可或缺”（indispensable）。A光学的，B可替代的，D可选的，均与“生存必需”逻辑相悖。"
+            },
+            {
+                id: 35,
+                question: "The constant barking of the neighbor’s dog has become such a ______ that the entire block has filed complaints with the city.",
+                options: ["blessing", "nuisance", "pleasure", "petition"],
+                answer: "B",
+                explanation: "邻居狗叫成为“扰民的事物”（nuisance）。A祝福，C乐趣，D请愿，均与“投诉”语境不符。"
+            },
+            {
+                id: 36,
+                question: "After hiking ten miles in the scorching sun, she felt overwhelming ______ and had to stop to rest.",
+                options: ["ventilation", "vitality", "fatigue", "alertness"],
+                answer: "C",
+                explanation: "烈日下徒步十英里后感到“疲劳”（fatigue）。A通风，B活力，D警觉，均与“需要休息”矛盾。"
+            },
+            {
+                id: 37,
+                question: "The patient’s condition took a turn for the worse due to ______ from air pollution, requiring immediate hospitalization.",
+                options: ["improvement", "plateau", "exacerbation", "stabilization"],
+                answer: "C",
+                explanation: "空气污染导致病情“恶化”（exacerbation）。A改善，B平台期，D稳定，均与“需立即住院”不符。"
+            },
+            {
+                id: 38,
+                question: "When she won the first prize in the international competition, tears of ______ streamed down her face, overwhelmed by the joy of the moment.",
+                options: ["rapture", "gloom", "despair", "indifference"],
+                answer: "A",
+                explanation: "国际比赛获奖后的泪水是“狂喜”（rapture）的体现。B忧郁，C绝望，D冷漠，均与“喜悦”矛盾。"
+            },
+            {
+                id: 39,
+                question: "A quiet, well-lit workspace is highly ______ to productive studying, as it minimizes distractions and helps maintain focus.",
+                options: ["conducive", "detrimental", "conductive", "irrelevant"],
+                answer: "A",
+                explanation: "安静明亮的环境“有利于”（conducive to）高效学习。B有害的，C传导的，D无关的，均与“减少干扰”逻辑相悖。"
+            },
+            {
+                id: 40,
+                question: "Excessive screen time has been proven ______ to children’s cognitive development, potentially impairing their ability to concentrate and learn.",
+                options: ["metal", "detrimental", "mental", "dedicated"],
+                answer: "B",
+                explanation: "过度屏幕时间“有害于”（detrimental to）儿童认知发展。A金属，C精神的，D专注的，均与“损害能力”不符。"
+            },
+            {
+                id: 41,
+                question: "The new policy strictly prohibits companies from ______ on employees' privacy rights, such as monitoring personal devices without consent.",
+                options: ["fringing", "safeguarding", "infringing", "shielding"],
+                answer: "C",
+                explanation: "禁止公司“侵犯”（infringing on）员工隐私权。A边缘（动词形式错误），B保护，D屏蔽，均与“监控设备”的负面行为矛盾。"
+            },
+            {
+                id: 42,
+                question: "The company's rigid rules are accused of ______ creativity, as employees report feeling unable to propose innovative ideas.",
+                options: ["simulating", "stimulating", "stifling", "straying"],
+                answer: "C",
+                explanation: "严格规则被指责“抑制”（stifling）创造力。A模拟，B刺激，D偏离，均与“无法提出创新想法”逻辑相悖。"
+            },
+            {
+                id: 43,
+                question: "The doctor warned that the medication might ______ drowsiness, so patients were advised against driving.",
+                options: ["inhabit", "induce", "inhibit", "reduce"],
+                answer: "B",
+                explanation: "药物可能“引发”（induce）嗜睡。A居住，C抑制，D减少，均与“建议勿驾驶”的因果关系不符。"
+            },
+            {
+                id: 44,
+                question: "To apologize for the flight delay, the airline decided to ______ passengers with vouchers for future trips.",
+                options: ["accuse", "compensate", "penalize", "commemorate"],
+                answer: "B",
+                explanation: "航司用代金券“补偿”（compensate）延误乘客。A指责，C惩罚，D纪念，均与“道歉”目的矛盾。"
+            },
+            {
+                id: 45,
+                question: "Farmers use special chemicals to ______ insects, creating a barrier that keeps them away from crops.",
+                options: ["diffuse", "repel", "propel", "allure"],
+                answer: "B",
+                explanation: "农药“驱赶”（repel）昆虫。A扩散，C推进，D吸引，均与“隔离作物”的目的不符。"
+            },
+            {
+                id: 46,
+                question: "The company aims to ______ its declining sales by launching a targeted marketing campaign for younger audiences.",
+                options: ["reserve", "reverse", "sustain", "contain"],
+                answer: "B",
+                explanation: "通过营销活动“扭转”（reverse）销售下滑。A保留，C维持，D遏制，均与“改善颓势”逻辑不符。"
+            },
+            {
+                id: 47,
+                question: "The author's dramatic opening chapter is designed to ______ readers and make them eager to finish the book.",
+                options: ["bear", "hook", "moan", "brim"],
+                answer: "B",
+                explanation: "戏剧性的开篇旨在“吸引”（hook）读者。A忍受，C抱怨，D充满，均与“激发阅读欲望”无关。"
+            },
+            {
+                id: 48,
+                question: "Scientists are developing new ways to ______ solar energy more efficiently and reduce fossil fuel use.",
+                options: ["menace", "squander", "reproach", "utilize"],
+                answer: "D",
+                explanation: "开发更高效“利用”（utilize）太阳能的方法。A威胁，B浪费，C责备，均与“减少化石燃料”目标相悖。"
+            },
+            {
+                id: 49,
+                question: "She had to ______ her social life to focus on preparing for the critical exam, spending nights studying alone.",
+                options: ["preserve", "pervade", "sacrifice", "satire"],
+                answer: "C",
+                explanation: "为备考“牺牲”（sacrifice）社交生活。A保留，B弥漫，D讽刺，均与“专注学习”语境不符。"
+            },
+            {
+                id: 50,
+                question: "Despite obstacles, justice is expected to ______ and the truth will eventually be revealed.",
+                options: ["jeopardize", "loosen", "prevail", "crumble"],
+                answer: "C",
+                explanation: "正义有望“胜出”（prevail）。A危及，B放松，D崩塌，均与“真相揭露”的积极结局矛盾。"
+            },
+            {
+                id: 51,
+                question: "The smell of freshly baked bread was so ______ that it filled every corner of the small town, making everyone feel hungry.",
+                options: ["wild", "persuasive", "pervasive", "mild"],
+                answer: "C",
+                explanation: "新鲜面包的香味“弥漫”（pervasive）小镇。A野生的，B有说服力的，D温和的，均与“充满每个角落”不符。"
+            },
+            {
+                id: 52,
+                question: "The author of the controversial article chose to remain ______, fearing backlash from powerful institutions.",
+                options: ["identical", "perplexed", "anonymous", "celebrated"],
+                answer: "C",
+                explanation: "担心报复而选择“匿名”（anonymous）。A相同的，B困惑的，D著名的，均与“害怕 backlash”逻辑不符。"
+            },
+            {
+                id: 53,
+                question: "Your ______ is the part of your body below your chest where your stomach and intestines are.",
+                options: ["abdomen", "limb", "aversion", "shoulder"],
+                answer: "A",
+                explanation: "胸部以下含肠胃的部位是“腹部”（abdomen）。B肢体，C厌恶，D肩膀，均与解剖学描述不符。"
+            },
+            {
+                id: 54,
+                question: "The country experienced rapid economic growth under the new ______, which implemented progressive tax reforms and infrastructure investments.",
+                options: ["chaos", "regime", "anarchy", "rugby"],
+                answer: "B",
+                explanation: "实施改革的新“政权”（regime）。A混乱，C无政府状态，D橄榄球，均与“政策推行”无关。"
+            },
+            {
+                id: 55,
+                question: "There is a new initiative aimed at beating the ______ of illegal drugs.",
+                options: ["menace", "canal", "rival", "hostel"],
+                answer: "A",
+                explanation: "打击非法毒品的“威胁”（menace）。B运河，C对手，D旅馆，均与“毒品危害”无关。"
+            },
+            {
+                id: 56,
+                question: "Growing levels of pollution represent a serious health ______ to the local population.",
+                options: ["hazard", "plaza", "lizard", "wizard"],
+                answer: "A",
+                explanation: "污染对健康构成“危害”（hazard）。B广场，C蜥蜴，D巫师，均与“健康风险”无关。"
+            },
+            {
+                id: 57,
+                question: "Even after the party ended, a few guests chose to ______ and continue chatting, enjoying the warm atmosphere.",
+                options: ["tumble", "depart", "linger", "abandon"],
+                answer: "C",
+                explanation: "派对结束后留下继续聊天即“逗留”（linger）。A跌倒，B离开，D抛弃，均与“继续享受氛围”矛盾。"
+            },
+            {
+                id: 58,
+                question: "During the solar ______, the moon passes between the sun and Earth, temporarily blocking the sun’s light.",
+                options: ["eclipse", "elapse", "ellipse", "departure"],
+                answer: "A",
+                explanation: "月球遮挡太阳的现象是“日食”（eclipse）。B流逝，C椭圆，D离开，均与天文现象无关。"
+            },
+            {
+                id: 59,
+                question: "The clear blue sky and gentle breeze on the wedding day were seen as ______ signs for the couple’s future happiness.",
+                options: ["devil", "ominous", "conspicuous", "auspicious"],
+                answer: "D",
+                explanation: "晴朗天气被视为“吉祥的”（auspicious）征兆。A魔鬼，B不祥的，C显眼的，均与“幸福未来”语境不符。"
+            },
+            {
+                id: 60,
+                question: "Her bright red coat made her ______ in the crowd, so it was easy for us to spot her from a distance.",
+                options: ["transparent", "obscure", "conspicuous", "auspicious"],
+                answer: "C",
+                explanation: "鲜红外套使她在人群中“显眼”（conspicuous）。A透明的，B模糊的，D吉祥的，均与“容易辨认”逻辑不符。"
+            }
+        ];
+
+        // 应用状态
+        const state = {
+            currentQuestionIndex: 0,
+            userAnswers: Array(questions.length).fill(null),
+            startTime: null,
+            totalTime: 100 * 60, // 100分钟，单位为秒
+            timerInterval: null,
+            questionTimerInterval: null,
+            questionStartTime: null,
+            elapsedTime: 0,
+            // 新增：记录已离开的题目（不能返回的题目）
+            leftQuestions: Array(questions.length).fill(false)
+        };
+
+        // DOM元素
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const questionsScreen = document.getElementById('questions-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const startBtn = document.getElementById('start-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const mobileSubmitBtn = document.getElementById('mobile-submit-btn');
+        const viewDetailsBtn = document.getElementById('view-details-btn');
+        const timerEl = document.getElementById('timer');
+        const progressTextEl = document.getElementById('progress-text');
+        const questionTimerEl = document.getElementById('question-timer');
+        const questionNumberEl = document.getElementById('question-number');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainerEl = document.getElementById('options-container');
+        const questionsGridEl = document.getElementById('questions-grid');
+        const progressBarEl = document.getElementById('progress-bar');
+        const completedCountEl = document.getElementById('completed-count');
+        const accuracyEl = document.getElementById('accuracy');
+        const timeSpentEl = document.getElementById('time-spent');
+        const correctCountEl = document.getElementById('correct-count');
+        const incorrectCountEl = document.getElementById('incorrect-count');
+        const answersContainerEl = document.getElementById('answers-container');
+        const timeUpModal = document.getElementById('time-up-modal');
+        const modalContent = document.getElementById('modal-content');
+        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+
+        // 格式化时间
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        // 更新计时器显示
+        function updateTimer() {
+            state.elapsedTime = Math.floor((Date.now() - state.startTime) / 1000);
+            const remainingTime = state.totalTime - state.elapsedTime;
+            
+            if (remainingTime <= 0) {
+                clearInterval(state.timerInterval);
+                timerEl.textContent = "00:00";
+                showTimeUpModal();
+                return;
+            }
+            
+            timerEl.textContent = formatTime(remainingTime);
+            
+            // 最后5分钟显示为红色
+            if (remainingTime <= 5 * 60) {
+                timerEl.classList.add('text-incorrect');
+                timerEl.classList.remove('text-gray-600');
+            }
+        }
+
+        // 更新单题计时器
+        function updateQuestionTimer() {
+            const elapsedQuestionTime = Math.floor((Date.now() - state.questionStartTime) / 1000);
+            questionTimerEl.textContent = formatTime(elapsedQuestionTime);
+        }
+
+        // 开始单题计时器
+        function startQuestionTimer() {
+            clearInterval(state.questionTimerInterval);
+            state.questionStartTime = Date.now();
+            questionTimerEl.textContent = "00:00";
+            state.questionTimerInterval = setInterval(updateQuestionTimer, 1000);
+        }
+
+        // 停止单题计时器
+        function stopQuestionTimer() {
+            clearInterval(state.questionTimerInterval);
+        }
+
+        // 显示当前题目
+        function renderCurrentQuestion() {
+            const currentQuestion = questions[state.currentQuestionIndex];
+            
+            // 更新题目编号和内容
+            questionNumberEl.textContent = `问题 ${state.currentQuestionIndex + 1}/${questions.length}`;
+            questionTextEl.textContent = currentQuestion.question;
+            
+            // 清空选项容器
+            optionsContainerEl.innerHTML = '';
+            
+            // 生成选项
+            const optionLetters = ['A', 'B', 'C', 'D'];
+            optionLetters.forEach((letter, index) => {
+                const optionValue = currentQuestion.options[index];
+                const isSelected = state.userAnswers[state.currentQuestionIndex] === letter;
+                
+                const optionEl = document.createElement('div');
+                optionEl.className = `flex items-start p-4 border rounded-lg ${isSelected ? 'bg-primary/10 border-primary' : 'border-gray-200 option-hover'}`;
+                optionEl.innerHTML = `
+                    <div class="flex-shrink-0 mt-0.5">
+                        <div class="w-6 h-6 rounded-full border-2 ${isSelected ? 'border-primary bg-primary' : 'border-gray-300'}" id="option-circle-${letter}">
+                            ${isSelected ? '<i class="fa fa-check text-white text-xs"></i>' : ''}
+                        </div>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-xl font-medium text-gray-900">${letter}. ${optionValue}</div>
+                    </div>
+                `;
+                
+                optionEl.addEventListener('click', () => selectOption(letter));
+                optionsContainerEl.appendChild(optionEl);
+            });
+            
+            // 更新按钮状态 - 修改：根据题目离开状态禁用上一题按钮
+            const hasLeftPrevious = state.currentQuestionIndex > 0 && state.leftQuestions[state.currentQuestionIndex - 1];
+            prevBtn.disabled = state.currentQuestionIndex === 0 || hasLeftPrevious;
+            nextBtn.disabled = state.currentQuestionIndex === questions.length - 1;
+            
+            // 更新导航栏的进度显示
+            updateProgressDisplay();
+            
+            // 开始单题计时器
+            startQuestionTimer();
+        }
+
+        // 选择选项
+        function selectOption(letter) {
+            // 更新用户答案
+            state.userAnswers[state.currentQuestionIndex] = letter;
+            
+            // 更新UI
+            const optionLetters = ['A', 'B', 'C', 'D'];
+            optionLetters.forEach((l) => {
+                const optionEl = optionsContainerEl.children[l.charCodeAt(0) - 65];
+                const circleEl = document.getElementById(`option-circle-${l}`);
+                
+                if (l === letter) {
+                    optionEl.className = 'flex items-start p-4 border rounded-lg bg-primary/10 border-primary';
+                    circleEl.className = 'w-6 h-6 rounded-full border-2 border-primary bg-primary';
+                    circleEl.innerHTML = '<i class="fa fa-check text-white text-xs"></i>';
+                } else {
+                    optionEl.className = 'flex items-start p-4 border rounded-lg border-gray-200 option-hover';
+                    circleEl.className = 'w-6 h-6 rounded-full border-2 border-gray-300';
+                    circleEl.innerHTML = '';
+                }
+            });
+            
+            // 更新进度显示
+            updateProgressDisplay();
+        }
+
+        // 更新进度显示
+        function updateProgressDisplay() {
+            const completedQuestions = state.userAnswers.filter(answer => answer !== null).length;
+            const progressPercentage = (completedQuestions / questions.length) * 100;
+            
+            // 更新进度条
+            progressBarEl.style.width = `${progressPercentage}%`;
+            
+            // 更新完成计数
+            completedCountEl.textContent = `${completedQuestions}/${questions.length}`;
+            progressTextEl.textContent = `${completedQuestions}/${questions.length}`;
+            
+            // 更新题目导航
+            renderQuestionsGrid();
+        }
+
+        // 渲染题目导航
+        function renderQuestionsGrid() {
+            questionsGridEl.innerHTML = '';
+            
+            questions.forEach((question, index) => {
+                const isAnswered = state.userAnswers[index] !== null;
+                const isCurrent = index === state.currentQuestionIndex;
+                const isCorrect = isAnswered && state.userAnswers[index] === question.answer;
+                const isLeft = state.leftQuestions[index]; // 是否已离开
+                
+                const questionBtn = document.createElement('button');
+                questionBtn.className = `w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-custom ${
+                    isCurrent ? 'bg-primary text-white' : 
+                    isLeft ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : // 已离开的题目
+                    isAnswered ? (isCorrect ? 'bg-correct text-white' : 'bg-incorrect text-white') : 
+                    'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`;
+                questionBtn.textContent = index + 1;
+                
+                // 已离开的题目不能点击
+                if (!isLeft) {
+                    questionBtn.addEventListener('click', () => {
+                        stopQuestionTimer();
+                        state.currentQuestionIndex = index;
+                        renderCurrentQuestion();
+                    });
+                }
+                
+                questionsGridEl.appendChild(questionBtn);
+            });
+        }
+
+        // 提交答案并显示结果
+        function submitAnswers() {
+            stopQuestionTimer();
+            clearInterval(state.timerInterval);
+            
+            // 计算正确答案数量
+            const correctAnswers = questions.filter((question, index) => {
+                return state.userAnswers[index] === question.answer;
+            }).length;
+            
+            const incorrectAnswers = questions.length - correctAnswers;
+            const accuracy = Math.round((correctAnswers / questions.length) * 100);
+            
+            // 更新结果页面
+            accuracyEl.textContent = `${accuracy}%`;
+            timeSpentEl.textContent = formatTime(state.elapsedTime);
+            correctCountEl.textContent = correctAnswers;
+            incorrectCountEl.textContent = incorrectAnswers;
+            
+            // 生成答案解析
+            answersContainerEl.innerHTML = '';
+            questions.forEach((question, index) => {
+                const userAnswer = state.userAnswers[index];
+                const isCorrect = userAnswer === question.answer;
+                
+                const answerCard = document.createElement('div');
+                answerCard.className = `bg-white rounded-2xl shadow-card p-6 ${isCorrect ? 'border-l-4 border-correct' : 'border-l-4 border-incorrect'}`;
+                
+                // 原题干和选项
+                const originalQuestionHTML = `
+                    <div class="mb-4">
+                        <h4 class="text-lg font-medium text-dark mb-2">问题 ${index + 1}</h4>
+                        <p class="text-gray-700 mb-3">${question.question}</p>
+                        <div class="space-y-2 ml-4">
+                            ${question.options.map((option, i) => `
+                                <p class="text-gray-600">${['A', 'B', 'C', 'D'][i]}. ${option}</p>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                // 用户答案和正确答案
+                const answerStatusHTML = `
+                    <div class="flex items-center mb-3">
+                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full mr-2 ${isCorrect ? 'bg-correct text-white' : 'bg-incorrect text-white'}">
+                            ${isCorrect ? '<i class="fa fa-check"></i>' : '<i class="fa fa-times"></i>'}
+                        </span>
+                        <span class="font-medium ${isCorrect ? 'text-correct' : 'text-incorrect'}">
+                            ${isCorrect ? '回答正确' : '回答错误'}
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <p class="text-sm text-gray-500">你的答案</p>
+                            <p class="font-medium ${isCorrect ? 'text-correct' : 'text-incorrect'}">${userAnswer || '未作答'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">正确答案</p>
+                            <p class="font-medium text-primary">${question.answer}</p>
+                        </div>
+                    </div>
+                `;
+                
+                // 解析
+                const explanationHTML = `
+                    <div class="p-4 bg-neutral rounded-lg">
+                        <p class="text-sm font-medium text-gray-700 mb-2">解析</p>
+                        <p class="text-sm text-gray-600">${question.explanation}</p>
+                    </div>
+                `;
+                
+                answerCard.innerHTML = originalQuestionHTML + answerStatusHTML + explanationHTML;
+                answersContainerEl.appendChild(answerCard);
+            });
+            
+            // 显示结果页面
+            questionsScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+        }
+
+        // 显示时间到弹窗
+        function showTimeUpModal() {
+            timeUpModal.classList.remove('hidden');
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        // 隐藏时间到弹窗
+        function hideTimeUpModal() {
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                timeUpModal.classList.add('hidden');
+            }, 300);
+        }
+
+        // 事件监听器
+        startBtn.addEventListener('click', () => {
+            welcomeScreen.classList.add('hidden');
+            questionsScreen.classList.remove('hidden');
+            
+            // 初始化计时器
+            state.startTime = Date.now();
+            updateTimer();
+            state.timerInterval = setInterval(updateTimer, 1000);
+            
+            // 渲染第一道题目
+            renderCurrentQuestion();
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (state.currentQuestionIndex > 0 && !state.leftQuestions[state.currentQuestionIndex - 1]) {
+                stopQuestionTimer();
+                state.currentQuestionIndex--;
+                renderCurrentQuestion();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            // 标记当前题目为已离开
+            state.leftQuestions[state.currentQuestionIndex] = true;
+            
+            if (state.currentQuestionIndex < questions.length - 1) {
+                stopQuestionTimer();
+                state.currentQuestionIndex++;
+                renderCurrentQuestion();
+            }
+        });
+
+        submitBtn.addEventListener('click', submitAnswers);
+        mobileSubmitBtn.addEventListener('click', submitAnswers);
+        viewDetailsBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: answersContainerEl.offsetTop - 100,
+                behavior: 'smooth'
+            });
+        });
+
+        modalConfirmBtn.addEventListener('click', () => {
+            hideTimeUpModal();
+            submitAnswers();
+        });
+
+        // 初始化题目导航
+        renderQuestionsGrid();
+    </script>
+</body>
+</html>
