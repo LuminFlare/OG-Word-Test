@@ -1,0 +1,3 @@
+# OG Word Test — GitHub development guidance
+
+Every future GitHub/Codex Actions or build/test task must read [`docs/GITHUB-CI-HARDWARE.md`](docs/GITHUB-CI-HARDWARE.md). No regular CI exists in this static HTML repository; do not create heavy workflows solely for hardware utilization. When a trusted project-scoped self-hosted runner is actually available, independent browser tests may start at 4 Workers and increase to 6 only with >=8 effective CPUs and >=10 GiB free memory, no test or approval weakening. Never assume the VoidFlare runner has been registered for this repository. Do not delete unique evidence, run paid CI, or auto-merge/publish without authorization.
